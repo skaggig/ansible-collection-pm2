@@ -20,18 +20,21 @@ PEP440 is the schema used to describe the versions of Ansible.
 Name | Description
 --- | ---
 [just1not2.pm2.pm2_facts](./docs/pm2_facts_module.rst)|Return PM2 information as fact data
-[just1not2.pm2.pm2_process](./pm2_process_module.rst)|Manage PM2 processes
+[just1not2.pm2.pm2_process](./docs/pm2_process_module.rst)|Manage PM2 processes
 
 
 ## Installing this collection
 
-To install this collection, you must first clone this repository, build the collection from source code and launch the installation with the `ansible-galaxy` CLI utility (replace `x.y.z` with the current version of this collection):
+You can install the PM2 collection with the Ansible Galaxy CLI:
 
-```sh
-git clone https://github.com/just1not2/ansible-collection-pm2.git
-cd ansible-collection-pm2
-ansible-galaxy collection build
-ansible-galaxy collection install just1not2-pm2-x.y.z.tar.gz
+    ansible-galaxy collection install just1not2.pm2
+
+You can also include it in a `requirements.yml` file and install it with `ansible-galaxy collection install -r requirements.yml`, using the format:
+
+```yaml
+---
+collections:
+  - name: just1not2.pm2
 ```
 
 
