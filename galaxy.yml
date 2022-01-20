@@ -1,0 +1,15 @@
+---
+namespace: just1not2
+name: pm2
+version: 1.0.0
+readme: README.md
+authors:
+  - Justin Béra <me@just1not2.org>
+description: Ansible collection for the Parallel Multithreaded Machine (PM2) software
+license_file: LICENCE
+tags:
+  - pm2
+dependencies: {}
+repository: https://github.com/just1not2/ansible-collection-pm2
+documentation: https://github.com/just1not2/ansible-collection-pm2/wiki
+issues: https://github.com/just1not2/ansible-collection-pm2/issues

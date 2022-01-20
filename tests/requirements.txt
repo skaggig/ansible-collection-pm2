@@ -1,0 +1,6 @@
+pycodestyle==2.8.0
+pylint==2.12.2
+rstcheck==3.3.1
+six==1.16.0
+voluptuous==0.12.2
+yamllint==1.26.3

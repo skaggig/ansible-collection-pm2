@@ -1,0 +1,4 @@
+plugins/module_utils/pm2.py pylint:consider-using-f-string  # for python2 compatibility
+plugins/modules/pm2_process.py pylint:consider-using-f-string  # for python2 compatibility
+plugins/module_utils/pm2.py pylint:consider-using-with  # for error management
+tests.sh shebang  # custom executable

@@ -1,0 +1,2 @@
+tests.sh shebang  # custom executable
+plugins/modules/pm2_facts.py validate-modules:invalid-documentation  # for previous ansible versions compatibility
