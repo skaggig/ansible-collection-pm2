@@ -35,6 +35,7 @@ options:
   name:
     description:
       - The name of the process.
+      - If this option is set to *, the module will match all processes.
     type: str
     required: true
   state:
@@ -125,7 +126,7 @@ def main():
                 (module.params["file"] and module.params["file"] != process.file)
             )]
             for process in diff_processes:
-                process.restart(module.params["name"], file=module.params["file"])
+                process.restart(module.params["file"])
                 diff["before"] += "'%s' state: %s\n" % (process.name, process.status)
                 diff["after"] += "'%s' state: restarted\n" % process.name
                 changed = True
@@ -146,7 +147,7 @@ def main():
         else:
             # Restarts all matching processes
             for process in processes:
-                delete_and_restart = process.restart(module.params["name"], module.params["file"])
+                delete_and_restart = process.restart(module.params["file"])
                 diff["before"] += "'%s' state: %s\n" % (process.name, process.status)
                 diff["after"] += "'%s' state: %s\n" % (process.name, "deleted and restarted" if delete_and_restart else "restarted")
                 changed = True
@@ -167,7 +168,7 @@ def main():
         else:
             # Reloads all matching processes
             for process in processes:
-                delete_and_restart = process.reload(module.params["name"], module.params["file"])
+                delete_and_restart = process.reload(module.params["file"])
                 diff["before"] += "'%s' state: %s\n" % (process.name, process.status)
                 diff["after"] += "'%s' state: %s\n" % (process.name, "deleted and restarted" if delete_and_restart else "reloaded")
                 changed = True

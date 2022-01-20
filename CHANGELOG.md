@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.1.0 (2022-01-20)
+
+### Features
+- Adds "*" as reserved name option for the pm2_process module to match all PM2 processes
+
+
 ## 1.0.1 (2022-01-20)
 
 ### Documentation

@@ -80,6 +80,10 @@ class Pm2Env():
     def get_matching_processes(self, name):
         ''' Returns the list of processes whose name matches the name module parameter '''
 
+        # Returns every processes for specified reserved name "*"
+        if name == "*":
+            return self.processes
+
         return [process for process in self.processes if process.name == name]
 
     def create_ecosystem_file(self, process_json):
@@ -119,7 +123,11 @@ class Pm2Env():
     def create_process(self, name, file):
         ''' Create a PM2 process '''
 
-        if not self.module.check_mode:
+        # Raises an error if the specified name is "*" (reserved)
+        if name == "*":
+            self.module.fail_json(msg="Cannot create PM2 process with name '*': reserved name")
+
+        elif not self.module.check_mode:
             process_json = dict(
                 name=name,
                 script=file
@@ -181,15 +189,15 @@ class Pm2Process():
 
         return delete_and_restart
 
-    def restart(self, name, file):
+    def restart(self, file):
         ''' Restarts the process '''
 
-        return self.execute_ecosystem_action("restart", name, file)
+        return self.execute_ecosystem_action("restart", self.name, file)
 
-    def reload(self, name, file):
+    def reload(self, file):
         ''' Reloads the process '''
 
-        return self.execute_ecosystem_action("reload", name, file)
+        return self.execute_ecosystem_action("reload", self.name, file)
 
     def stop(self):
         ''' Stops the process '''

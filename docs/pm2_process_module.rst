@@ -111,6 +111,7 @@ Parameters
             </td>
             <td>
                 <div>The name of the process.</div>
+                <div>If this option is set to *, the module will match all processes.</div>
             </td>
         </tr>
         <tr>
@@ -212,6 +213,11 @@ Examples
       just1not2.pm2.pm2_process:
         name: example
         state: stopped
+
+    - name: Restart all PM2 processes
+      just1not2.pm2.pm2_process:
+        name: "*"
+        state: restarted
 
 
 
