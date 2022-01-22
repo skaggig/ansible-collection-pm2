@@ -106,9 +106,10 @@ def main():
     )
     changed = False
 
-    if module.params["state"] == "started":
-        # If there are no matching process, creates one
-        if not len(processes):
+    # If there is no matching process, creates one if state is "reloaded", "restarted" or "started"
+    if not len(processes):
+        if module.params["state"] in ["reloaded", "restarted", "started"]:
+
             # Fails if the file option is not defined
             if not module.params["file"]:
                 module.fail_json(msg="Cannot create '%s' pm2 process: 'file' option not provided" % module.params["name"])
@@ -119,75 +120,43 @@ def main():
                 diff["after"] += "'%s' state: started\n" % module.params["name"]
                 changed = True
 
-        else:
-            # Gets the matching processes that do not follow the provided options and restarts them
+    else:
+        # Initializes the list of processes that will be affected
+        diff_processes = processes
+
+        if module.params["state"] == "started":
+            # Only keeps the matching processes that do not follow the provided options
             diff_processes = [process for process in processes if (
                 process.status != "online" or
                 (module.params["file"] and module.params["file"] != process.file)
             )]
-            for process in diff_processes:
-                process.restart(module.params["file"])
-                diff["before"] += "'%s' state: %s\n" % (process.name, process.status)
-                diff["after"] += "'%s' state: restarted\n" % process.name
-                changed = True
+        elif module.params["state"] == "stopped":
+            # Only keeps the matching processes that are not already stopped
+            diff_processes = [process for process in processes if process.status != "stopped"]
 
-    elif module.params["state"] == "restarted":
-        # If there are no matching process, creates one
-        if not len(processes):
-            # Fails if the file option is not defined
-            if not module.params["file"]:
-                module.fail_json(msg="Cannot create '%s' pm2 process: 'file' option not provided" % module.params["name"])
-
-            # Otherwise, creates the process with the provided options
-            else:
-                env.create_process(module.params["name"], module.params["file"])
-                diff["after"] += "'%s' state: started\n" % module.params["name"]
-                changed = True
-
-        else:
-            # Restarts all matching processes
-            for process in processes:
+        for process in diff_processes:
+            if module.params["state"] in ["restarted", "started"]:
+                # Restarts the process and checks if it had to be deleted
                 delete_and_restart = process.restart(module.params["file"])
                 diff["before"] += "'%s' state: %s\n" % (process.name, process.status)
                 diff["after"] += "'%s' state: %s\n" % (process.name, "deleted and restarted" if delete_and_restart else "restarted")
-                changed = True
 
-    elif module.params["state"] == "reloaded":
-        # If there are no matching process, creates one
-        if not len(processes):
-            # Fails if the file option is not defined
-            if not module.params["file"]:
-                module.fail_json(msg="Cannot create '%s' pm2 process: 'file' option not provided" % module.params["name"])
-
-            # Otherwise, creates the process with the provided options
-            else:
-                env.create_process(module.params["name"], module.params["file"])
-                diff["after"] += "'%s' state: started\n" % module.params["name"]
-                changed = True
-
-        else:
-            # Reloads all matching processes
-            for process in processes:
+            elif module.params["state"] == "reloaded":
+                # Reloads the process and checks if it had to be deleted
                 delete_and_restart = process.reload(module.params["file"])
                 diff["before"] += "'%s' state: %s\n" % (process.name, process.status)
                 diff["after"] += "'%s' state: %s\n" % (process.name, "deleted and restarted" if delete_and_restart else "reloaded")
-                changed = True
 
-    elif module.params["state"] == "stopped":
-        # Stops all matching processes that are not already stopped or errored
-        for process in processes:
-            if process.status != "stopped":
+            elif module.params["state"] == "stopped":
                 process.stop()
                 diff["before"] += "'%s' state: %s\n" % (process.name, process.status)
                 diff["after"] += "'%s' state: stopped\n" % process.name
-                changed = True
 
-    elif module.params["state"] == "deleted":
-        # Deletes all matching processes
-        for process in processes:
-            process.delete()
-            diff["before"] += "'%s' state: %s\n" % (process.name, process.status)
-            diff["after"] += "'%s' state: deleted\n" % process.name
+            elif module.params["state"] == "deleted":
+                process.delete()
+                diff["before"] += "'%s' state: %s\n" % (process.name, process.status)
+                diff["after"] += "'%s' state: deleted\n" % process.name
+
             changed = True
 
     result = dict(

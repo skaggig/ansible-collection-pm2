@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.1.1 (2022-01-22)
+
+### Refactor
+- Rearranges the state conditionnals in the pm2_process module to remove duplicates
+
+### Documentation
+- Fixes typos
+
 ## 1.1.0 (2022-01-20)
 
 ### Features

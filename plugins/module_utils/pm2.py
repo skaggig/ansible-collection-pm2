@@ -68,7 +68,7 @@ class Pm2Env():
         )
 
     def run(self, command):
-        ''' Runs a PM2 based command and return standard output '''
+        ''' Runs a PM2 based command and returns standard output '''
 
         rc, out, err = self.module.run_command("%s %s" % (self.executable, command))
 
@@ -78,9 +78,9 @@ class Pm2Env():
         return out
 
     def get_matching_processes(self, name):
-        ''' Returns the list of processes whose name matches the name module parameter '''
+        ''' Returns the list of processes whose name matches the provided argument '''
 
-        # Returns every processes for specified reserved name "*"
+        # For reserved name "*", returns all processes
         if name == "*":
             return self.processes
 
@@ -112,7 +112,7 @@ class Pm2Env():
         return ecosystem_file_path
 
     def delete_ecosystem_file(self, ecosystem_file_path):
-        ''' Deletes a temporary file '''
+        ''' Deletes a temporary ecosystem file '''
 
         try:
             remove(ecosystem_file_path)
@@ -133,7 +133,7 @@ class Pm2Env():
                 script=file
             )
 
-            # Create a temporary ecosystem file for the new process
+            # Creates a temporary ecosystem file for the new process
             ecosystem_file_path = self.create_ecosystem_file(process_json)
 
             self.run("start %s" % ecosystem_file_path)
@@ -166,7 +166,7 @@ class Pm2Process():
         )
 
     def execute_ecosystem_action(self, action, name, file):
-        ''' Executes a PM2 action with an temporary ecosystem file and returns if process was deleted and recreated '''
+        ''' Executes a PM2 action with a temporary ecosystem file and returns if the process had to be deleted and recreated '''
 
         # If its script file changes, the process has to be deleted and restarted
         delete_and_restart = file and self.file != file
@@ -181,7 +181,7 @@ class Pm2Process():
                     name=name,
                     script=self.file
                 )
-                # Create a temporary ecosystem file to update the process
+                # Creates a temporary ecosystem file to update the process
                 temporary_file = self.env.create_ecosystem_file(process_json)
 
                 self.env.run("%s %s" % (action, temporary_file))
