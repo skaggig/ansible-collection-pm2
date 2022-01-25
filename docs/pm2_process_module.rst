@@ -67,6 +67,22 @@ Parameters
         </tr>
         <tr>
             <td>
+                <b>chdir</b>
+                <div style="font-size: small">
+                    <span style="color: purple">path</span>
+                </div>
+                <div style="font-size: small">
+                    <span style="color: green; font-style: italic">added in 1.2</span>
+                </div>
+            </td>
+            <td>
+            </td>
+            <td>
+                <div>The working directory of the script.</div>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <b>executable</b>
                 <div style="font-size: small">
                     <span style="color: purple">path</span>

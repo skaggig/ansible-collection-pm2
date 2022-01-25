@@ -42,6 +42,7 @@ class Pm2Env():
             self.processes.append(
                 Pm2Process(
                     self,
+                    cwd=process["pm2_env"]["pm_cwd"],
                     file=process["pm2_env"]["pm_exec_path"],
                     id=process["pm_id"],
                     interpreter=process["pm2_env"]["exec_interpreter"],
@@ -120,7 +121,7 @@ class Pm2Env():
         except Exception as err:
             self.module.fail_json(msg="Cannot delete temporary ecosystem file '%s'" % ecosystem_file_path, err=repr(err))
 
-    def create_process(self, name, file):
+    def create_process(self, name, file, chdir):
         ''' Create a PM2 process '''
 
         # Raises an error if the specified name is "*" (reserved)
@@ -132,6 +133,10 @@ class Pm2Env():
                 name=name,
                 script=file
             )
+
+            # Adds current working directory if it is defined
+            if chdir is not None:
+                process_json["cwd"] = chdir
 
             # Creates a temporary ecosystem file for the new process
             ecosystem_file_path = self.create_ecosystem_file(process_json)
@@ -154,6 +159,7 @@ class Pm2Process():
         ''' Returns a dictionary translation of the process '''
 
         return dict(
+            cwd=self.cwd,
             file=self.file,
             id=self.id,
             interpreter=self.interpreter,
@@ -165,22 +171,33 @@ class Pm2Process():
             status=self.status
         )
 
-    def execute_ecosystem_action(self, action, name, file):
+    def execute_ecosystem_action(self, action, name, file, chdir):
         ''' Executes a PM2 action with a temporary ecosystem file and returns if the process had to be deleted and recreated '''
 
         # If its script file changes, the process has to be deleted and restarted
-        delete_and_restart = file and self.file != file
+        delete_and_restart = (
+            (file and self.file != file) or
+            (chdir and self.cwd != chdir)
+        )
 
         if not self.module.check_mode:
             if delete_and_restart:
                 self.delete()
-                self.env.create_process(name, file)
+                self.env.create_process(
+                    name,
+                    file,
+                    chdir if chdir else self.cwd
+                )
 
             else:
                 process_json = dict(
                     name=name,
                     script=self.file
                 )
+
+                # Defines current working directory
+                process_json["cwd"] = chdir if chdir is not None else self.cwd
+
                 # Creates a temporary ecosystem file to update the process
                 temporary_file = self.env.create_ecosystem_file(process_json)
 
@@ -189,15 +206,15 @@ class Pm2Process():
 
         return delete_and_restart
 
-    def restart(self, file):
+    def restart(self, file, chdir):
         ''' Restarts the process '''
 
-        return self.execute_ecosystem_action("restart", self.name, file)
+        return self.execute_ecosystem_action("restart", self.name, file, chdir)
 
-    def reload(self, file):
+    def reload(self, file, chdir):
         ''' Reloads the process '''
 
-        return self.execute_ecosystem_action("reload", self.name, file)
+        return self.execute_ecosystem_action("reload", self.name, file, chdir)
 
     def stop(self):
         ''' Stops the process '''

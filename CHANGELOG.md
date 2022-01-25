@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.2.0 (2022-01-25)
+
+### Features
+- Adds the chdir option in the pm2_process module to change the working directory of the script
+- Adds a new return value cwd in the pm2_facts module that contains the working directory of the script
+
+
 ## 1.1.1 (2022-01-22)
 
 ### Refactor
@@ -7,6 +14,7 @@
 
 ### Documentation
 - Fixes typos
+
 
 ## 1.1.0 (2022-01-20)
 

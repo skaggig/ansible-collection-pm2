@@ -24,6 +24,11 @@ options:
       - If this option is set to no, the module will return an error with out-of-date in-memory PM2.
     type: bool
     default: yes
+  chdir:
+    description:
+      - The working directory of the script.
+    type: path
+    version_added: "1.2.0"
   executable:
     description:
       - The explicit executable or pathname for the pm2 executable.
@@ -90,6 +95,7 @@ def main():
     module = AnsibleModule(
         argument_spec=dict(
             allow_update=dict(type="bool", default=True),
+            chdir=dict(type="path"),
             executable=dict(type="path"),
             file=dict(type="path"),
             name=dict(type="str", required=True),
@@ -116,7 +122,7 @@ def main():
 
             # Otherwise, creates the process with the provided options
             else:
-                env.create_process(module.params["name"], module.params["file"])
+                env.create_process(module.params["name"], module.params["file"], module.params["chdir"])
                 diff["after"] += "'%s' state: started\n" % module.params["name"]
                 changed = True
 
@@ -128,7 +134,8 @@ def main():
             # Only keeps the matching processes that do not follow the provided options
             diff_processes = [process for process in processes if (
                 process.status != "online" or
-                (module.params["file"] and module.params["file"] != process.file)
+                (module.params["file"] and module.params["file"] != process.file) or
+                (module.params["chdir"] and module.params["chdir"] != process.cwd)
             )]
         elif module.params["state"] == "stopped":
             # Only keeps the matching processes that are not already stopped
@@ -137,13 +144,13 @@ def main():
         for process in diff_processes:
             if module.params["state"] in ["restarted", "started"]:
                 # Restarts the process and checks if it had to be deleted
-                delete_and_restart = process.restart(module.params["file"])
+                delete_and_restart = process.restart(module.params["file"], module.params["chdir"])
                 diff["before"] += "'%s' state: %s\n" % (process.name, process.status)
                 diff["after"] += "'%s' state: %s\n" % (process.name, "deleted and restarted" if delete_and_restart else "restarted")
 
             elif module.params["state"] == "reloaded":
                 # Reloads the process and checks if it had to be deleted
-                delete_and_restart = process.reload(module.params["file"])
+                delete_and_restart = process.reload(module.params["file"], module.params["chdir"])
                 diff["before"] += "'%s' state: %s\n" % (process.name, process.status)
                 diff["after"] += "'%s' state: %s\n" % (process.name, "deleted and restarted" if delete_and_restart else "reloaded")
 

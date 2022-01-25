@@ -239,6 +239,25 @@ Facts returned by this module are added/updated in the hostvars host facts and c
             <td>&nbsp;&nbsp;</td>
             <td>&nbsp;&nbsp;</td>
             <td colspan="2">
+                <b>cwd</b>
+                <div style="font-size: small">
+                    <span style="color: purple">string</span>
+                </div>
+                <div style="font-size: small">
+                    <span style="color: green; font-style: italic">added in 1.2</span>
+                </div>
+            </td>
+            <td>success</td>
+            <td>
+                <div>The path to the directory from which the script runs.</div>
+                <div style="font-size: smaller"><b>Sample:</b></div>
+                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">"/home/user"</div>
+            </td>
+        </tr>
+        <tr>
+            <td>&nbsp;&nbsp;</td>
+            <td>&nbsp;&nbsp;</td>
+            <td colspan="2">
                 <b>file</b>
                 <div style="font-size: small">
                     <span style="color: purple">string</span>

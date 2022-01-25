@@ -81,6 +81,13 @@ ansible_facts:
           type: list
           elements: dict
           contains:
+            cwd:
+              description:
+                - The path to the directory from which the script runs.
+              returned: success
+              type: str
+              sample: /home/user
+              version_added: "1.2.0"
             file:
               description:
                 - The path to the process script file.
